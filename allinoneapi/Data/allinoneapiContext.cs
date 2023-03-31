@@ -14,7 +14,6 @@ namespace allinoneapi.Data
     public class allinoneapiContext : DbContext, IDisposable
     {
         private string connectionString;
-        
         public allinoneapiContext ()
         {
             var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
@@ -35,30 +34,15 @@ namespace allinoneapi.Data
             configurationBuilder.Properties<decimal>()
                 .HavePrecision(20, 10);
         }
-        #region IDisposable
-        ~allinoneapiContext()
-        {
-            Console.WriteLine("allinoneapiContext distructor");
-        }
-        //~allinoneapiContext()
-        //{
-        //    //base.Dispose();
-        //    //this.Dispose();
-        //    GC.Collect();
-        //    Console.WriteLine("allinoneapiContext dispose");
-        //    //this.Dispose();
-        //}
-        public override void Dispose()
+        public void Dispose()
         {
             try
             {
-                // Cleanup statements...
             }
             finally
             {
-                Console.WriteLine("allinoneapiContext dispose");
+                Console.WriteLine("context dispose");
             }
         }
-        #endregion IDisposable
     }
 }

@@ -36,11 +36,11 @@ app.UseHsts();
 // Configure the HTTP request pipeline.
 
 app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwaggerUI();
 
 //builder.WebHost.UseUrls("http://localhost:5210", "https://localhost:443");
 app.UseHttpsRedirection();
-app.UseAuthorization();
+//app.UseAuthorization();
 app.MapControllers();
 app.UseRouting();
 app.MapControllerRoute(
