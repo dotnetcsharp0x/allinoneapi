@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
 //builder.Services.AddDbContext<allinoneapiContext>(options =>
 
 //options.UseSqlServer(builder.Configuration.GetConnectionString("allinoneapiContext"), op =>
@@ -35,8 +35,8 @@ else
 app.UseHsts();
 // Configure the HTTP request pipeline.
 
-app.UseSwagger();
-app.UseSwaggerUI();
+//app.UseSwagger();
+//app.UseSwaggerUI();
 
 //builder.WebHost.UseUrls("http://localhost:5210", "https://localhost:443");
 app.UseHttpsRedirection();

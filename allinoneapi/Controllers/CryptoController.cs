@@ -25,28 +25,27 @@ namespace allinoneapi.Controllers
     [ApiController]
     public class CryptoController : ControllerBase, IDisposable
     {
-        //Process currentProc = Process.GetCurrentProcess();
-        public CryptoController() {
-        }
+        public CryptoController() { }
         #region UpdatePairs
         [HttpGet]
         [Route("UpdatePairs")]
         public async Task<List<Crypto_Symbols>> UpdatePairs()
         {
-            Binance_GetCryptoData? cryptoPairs;
-            Binance_symbols[]? respFromBinance;
-            Crypto_Symbols? serializerCryptoData = new Crypto_Symbols();
-            List<Crypto_Symbols>? cryptoSymbolListOnResponse = new List<Crypto_Symbols>();
-            string url = "https://api.binance.com/api/v1/exchangeInfo";
-            var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
-            request.AddHeader("Content-Type", "application/json");
-            var r = client.ExecuteAsync(request).Result.Content;
-            cryptoPairs = JsonSerializer.Deserialize<Binance_GetCryptoData>(r);
-            respFromBinance = cryptoPairs.symbols;
-
             using (allinoneapiContext _context = new allinoneapiContext())
             {
+                Binance_GetCryptoData? cryptoPairs;
+                Binance_symbols[]? respFromBinance;
+                Crypto_Symbols? serializerCryptoData = new Crypto_Symbols();
+                List<Crypto_Symbols>? cryptoSymbolListOnResponse = new List<Crypto_Symbols>();
+
+                string url = "https://api.binance.com/api/v1/exchangeInfo";
+                var client = new RestClient(url);
+                var request = new RestRequest(url, Method.Get);
+                request.AddHeader("Content-Type", "application/json");
+                var r = client.ExecuteAsync(request).Result.Content;
+                cryptoPairs = JsonSerializer.Deserialize<Binance_GetCryptoData>(r);
+                respFromBinance = cryptoPairs.symbols;
+
                 await _context.Database.ExecuteSqlRawAsync("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
                 var CurrentPairsInDatabase = await (from i in _context.Crypto_Symbols select i).ToArrayAsync();
                 if (r is not null)
@@ -65,8 +64,8 @@ namespace allinoneapi.Controllers
                         await _context.SaveChangesAsync();
                     }
                 }
+                return cryptoSymbolListOnResponse;
             }
-            return cryptoSymbolListOnResponse;
         }
         #endregion
 
@@ -75,19 +74,19 @@ namespace allinoneapi.Controllers
         [Route("UpdateCurrentPrice")]
         public async Task<List<Crypto_Price>> UpdateCurrentPrice()
         {
-            List<Crypto_Price>? cryptoPriceListOnResponse = new List<Crypto_Price>();
-            List<Binance_Price_quoted>? serilizerForBinanceRequest;
-            Crypto_Price? currentPairsInDb;
-
-            string url = "https://api.binance.com/api/v1/ticker/price";
-            var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
-            request.AddHeader("Content-Type", "application/json");
-            var r = client.Execute(request).Content;
-            serilizerForBinanceRequest = JsonSerializer.Deserialize<List<Binance_Price_quoted>>(r);
-
             using (allinoneapiContext _context = new allinoneapiContext())
             {
+                List<Crypto_Price>? cryptoPriceListOnResponse = new List<Crypto_Price>();
+                List<Binance_Price_quoted>? serilizerForBinanceRequest;
+                Crypto_Price? currentPairsInDb;
+
+                string url = "https://api.binance.com/api/v1/ticker/price";
+                var client = new RestClient(url);
+                var request = new RestRequest(url, Method.Get);
+                request.AddHeader("Content-Type", "application/json");
+                var r = client.Execute(request).Content;
+                serilizerForBinanceRequest = JsonSerializer.Deserialize<List<Binance_Price_quoted>>(r);
+
                 await _context.Database.ExecuteSqlRawAsync("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
                 var CurrentPairsInDatabase = await (from i in _context.Crypto_Price select i).ToArrayAsync();
                 foreach (var a in serilizerForBinanceRequest)
@@ -104,16 +103,17 @@ namespace allinoneapi.Controllers
                     }
                     else
                     {
-                        currentPairsInDb.Symbol = a.symbol;
                         currentPairsInDb.Price = Convert.ToDecimal(a.price.Replace(".", ","));
                         currentPairsInDb.DateTime = DateTime.Now;
                         cryptoPriceListOnResponse.Add(currentPairsInDb);
                     }
+                    currentPairsInDb = null;
                 }
                 await _context.SaveChangesAsync();
+                serilizerForBinanceRequest = null;
+                CurrentPairsInDatabase = null;
+                return cryptoPriceListOnResponse;
             }
-            //var bytesInUse = currentProc.PrivateMemorySize64;
-            return cryptoPriceListOnResponse;
         }
         ~CryptoController()
         {
@@ -121,17 +121,10 @@ namespace allinoneapi.Controllers
         }
         public void Dispose()
         {
-            try
-            {
-            }
-            finally
-            {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.SuppressFinalize(this);
-                Console.WriteLine("controller dispose");
-                //var bytesInUse = currentProc.PrivateMemorySize64;
-            }
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.SuppressFinalize(this);
+            Console.WriteLine("controller dispose");
         }
         #endregion
     }
