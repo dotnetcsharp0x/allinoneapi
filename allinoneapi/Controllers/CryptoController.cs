@@ -1,123 +1,99 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Net.Http.Headers;
-using System.Security.Cryptography.Xml;
-using System;
-using RestSharp;
-using System.Text;
-using System.Net.Http;
-using allinoneapi.Data;
 using allinoneapi.Models;
-using System.Linq;
+using Binance.Net.Clients;
+using System.Collections;
+using BenchmarkDotNet.Attributes;
+using allinoneapi.Data;
+using RestSharp;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics;
-using Microsoft.Extensions.Caching.Memory;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using Microsoft.VisualBasic;
-using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Connections;
-using Microsoft.AspNetCore.Http;
 
 namespace allinoneapi.Controllers
 {
-    
+
     [Route("api/[controller]")]
     [ApiController]
     public class CryptoController : ControllerBase, IDisposable
     {
         public CryptoController() { }
+
         #region UpdatePairs
         [HttpGet]
         [Route("UpdatePairs")]
-        public async Task<List<Crypto_Symbols>> UpdatePairs()
+        public HashSet<Crypto_Symbols> UpdatePairs()
         {
-            using (allinoneapiContext _context = new allinoneapiContext())
-            {
-                Binance_GetCryptoData? cryptoPairs;
-                Binance_symbols[]? respFromBinance;
-                Crypto_Symbols? serializerCryptoData = new Crypto_Symbols();
-                List<Crypto_Symbols>? cryptoSymbolListOnResponse = new List<Crypto_Symbols>();
-
-                string url = "https://api.binance.com/api/v1/exchangeInfo";
-                var client = new RestClient(url);
-                var request = new RestRequest(url, Method.Get);
-                request.AddHeader("Content-Type", "application/json");
-                var r = client.ExecuteAsync(request).Result.Content;
-                cryptoPairs = JsonSerializer.Deserialize<Binance_GetCryptoData>(r);
-                respFromBinance = cryptoPairs.symbols;
-
-                await _context.Database.ExecuteSqlRawAsync("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
-                var CurrentPairsInDatabase = await (from i in _context.Crypto_Symbols select i).ToArrayAsync();
-                if (r is not null)
-                {
-                    respFromBinance = (from s in respFromBinance where !(from b in CurrentPairsInDatabase select b.Symbol).Contains(s.symbol) select s).ToArray();
-                    if (respFromBinance.Length > 0)
-                    {
-                        foreach (var i in respFromBinance)
-                        {
-                            serializerCryptoData.Symbol = i.symbol;
-                            serializerCryptoData.BaseAsset = i.baseAsset;
-                            serializerCryptoData.QuoteAsset = i.quoteAsset;
-                            cryptoSymbolListOnResponse.Add(serializerCryptoData);
-                            await _context.AddAsync(serializerCryptoData);
-                        }
-                        await _context.SaveChangesAsync();
-                    }
-                }
-                return cryptoSymbolListOnResponse;
-            }
+            BinanceClient client = new();
+            Console.WriteLine("log");
+            var resp = client.SpotApi.ExchangeData.GetProductsAsync().Result.Data.Select(x => new Crypto_Symbols { Symbol = x.Symbol, QuoteAsset = x.QuoteAsset, BaseAsset = x.BaseAsset }).ToHashSet();
+            client.Dispose();
+            return resp;
         }
         #endregion
 
         #region UpdateCurrentPrice
         [HttpGet]
         [Route("UpdateCurrentPrice")]
-        public async Task<List<Crypto_Price>> UpdateCurrentPrice()
+        public HashSet<Crypto_Price> UpdateCurrentPrice()
         {
-            using (allinoneapiContext _context = new allinoneapiContext())
-            {
-                List<Crypto_Price>? cryptoPriceListOnResponse = new List<Crypto_Price>();
-                List<Binance_Price_quoted>? serilizerForBinanceRequest;
-                Crypto_Price? currentPairsInDb;
-
-                string url = "https://api.binance.com/api/v1/ticker/price";
-                var client = new RestClient(url);
-                var request = new RestRequest(url, Method.Get);
-                request.AddHeader("Content-Type", "application/json");
-                var r = client.Execute(request).Content;
-                serilizerForBinanceRequest = JsonSerializer.Deserialize<List<Binance_Price_quoted>>(r);
-
-                await _context.Database.ExecuteSqlRawAsync("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
-                var CurrentPairsInDatabase = await (from i in _context.Crypto_Price select i).ToArrayAsync();
-                foreach (var a in serilizerForBinanceRequest)
-                {
-                    currentPairsInDb = (from d in CurrentPairsInDatabase where d.Symbol == a.symbol select d).FirstOrDefault();
-                    if (currentPairsInDb is null)
-                    {
-                        currentPairsInDb = new Crypto_Price();
-                        currentPairsInDb.Symbol = a.symbol;
-                        currentPairsInDb.Price = Convert.ToDecimal(a.price.Replace(".", ","));
-                        currentPairsInDb.DateTime = DateTime.Now;
-                        cryptoPriceListOnResponse.Add(currentPairsInDb);
-                        await _context.AddAsync(currentPairsInDb);
-                    }
-                    else
-                    {
-                        currentPairsInDb.Price = Convert.ToDecimal(a.price.Replace(".", ","));
-                        currentPairsInDb.DateTime = DateTime.Now;
-                        cryptoPriceListOnResponse.Add(currentPairsInDb);
-                    }
-                    currentPairsInDb = null;
-                }
-                await _context.SaveChangesAsync();
-                serilizerForBinanceRequest = null;
-                CurrentPairsInDatabase = null;
-                return cryptoPriceListOnResponse;
-            }
+            BinanceClient client = new();
+            var resp = client.SpotApi.ExchangeData.GetPricesAsync().Result.Data.Select(x => new Crypto_Price { Symbol = x.Symbol, Price = x.Price, DateTime = DateTime.Now }).ToHashSet();
+            Console.WriteLine(resp);
+            client.Dispose();
+            return resp;
         }
+        [HttpGet]
+        [Route("UpdateCurrentPrice2")]
+        public HashSet<Binance_Price_quoted> UpdateCurrentPrice2()
+        {
+            HashSet<Binance_Price_quoted>? serilizerForBinanceRequest;
+            string url = "https://api.binance.com/api/v1/ticker/price";
+            var client = new RestClient(url);
+            var request = new RestRequest(url, Method.Get);
+            request.AddHeader("Content-Type", "application/json");
+            var r = client.Execute(request).Content;
+            serilizerForBinanceRequest = JsonSerializer.Deserialize<HashSet<Binance_Price_quoted>>(r);
+            if (serilizerForBinanceRequest == null)
+            {
+                serilizerForBinanceRequest = new HashSet<Binance_Price_quoted>();
+            }
+            return serilizerForBinanceRequest;
+        }
+        #endregion
+
+        #region GetKandles
+        [HttpGet]
+        [Route("GetKandles")]
+        public int GetKandles()
+        {
+            BinanceClient client = new();
+            var r = client.SpotApi.ExchangeData.GetKlinesAsync("BTCUSDT",Binance.Net.Enums.KlineInterval.OneMinute, DateTime.Now.AddMinutes(-2), DateTime.Now,1).Result;
+            Console.WriteLine(r);
+            //var r = client.SpotApi.ExchangeData.GetProductsAsync().Result;
+            return 1;
+            //await using (allinoneapiContext _context = new allinoneapiContext())
+            //{
+            //    await _context.Database.ExecuteSqlRawAsync("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
+            //    var CurrentPairsInDb = (from c in _context.Crypto_Symbols where c.Symbol=="BTCUSDT" select c);
+            //    var BnKandles = new List<Binance_KandlesArray>();
+            //    string url = null;
+            //    foreach (var i in CurrentPairsInDb) {
+            //        url = $"https://api.binance.com/api/v1/klines?symbol={i.Symbol}&interval=1m&limit=1";
+            //        var client = new RestClient(url);
+            //        var request = new RestRequest(url, Method.Get);
+            //        request.AddHeader("Content-Type", "application/json");
+            //        var r = client.Execute(request).Content.Replace("[[", "[").Replace("]]", "]");
+            //        var result = JsonSerializer.Deserialize<List<Binance_Kanldes>>(r);
+            //        //var BnKandlest = JsonSerializer.Deserialize<List<Binance_KandlesArray>>(r);
+            //        //Console.WriteLine(BnKandles);
+            //    }
+            //    return 1;
+            //}
+        }
+        #endregion
+
         ~CryptoController()
         {
-            Console.WriteLine("controller dtor");
+            Console.WriteLine("controller ctor");
         }
         public void Dispose()
         {
@@ -126,6 +102,5 @@ namespace allinoneapi.Controllers
             GC.SuppressFinalize(this);
             Console.WriteLine("controller dispose");
         }
-        #endregion
     }
 }

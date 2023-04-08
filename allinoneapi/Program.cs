@@ -1,9 +1,12 @@
+using allinoneapi;
 using allinoneapi.Controllers;
 using allinoneapi.Data;
 using allinoneapi.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text.Json.Serialization;
+using BenchmarkDotNet.Running;
+using BenchmarkDotNet.Attributes;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen();
 //builder.Services.AddDbContext<allinoneapiContext>(options =>
 
 //options.UseSqlServer(builder.Configuration.GetConnectionString("allinoneapiContext"), op =>
@@ -35,10 +38,11 @@ else
 app.UseHsts();
 // Configure the HTTP request pipeline.
 
-//app.UseSwagger();
-//app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 //builder.WebHost.UseUrls("http://localhost:5210", "https://localhost:443");
+//builder.WebHost.UseUrls("https://localhost:443");
 app.UseHttpsRedirection();
 //app.UseAuthorization();
 app.MapControllers();
@@ -50,3 +54,4 @@ app.MapControllerRoute(
 
 
 app.Run();
+//BenchmarkRunner.Run<BenchmarkAPI>();

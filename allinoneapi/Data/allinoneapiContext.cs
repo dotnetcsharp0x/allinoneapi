@@ -1,12 +1,6 @@
 ﻿#nullable disable
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using allinoneapi.Models;
-using Microsoft.Identity.Client;
-using System.Text.Json.Serialization;
 //using System.Data.Entity;
 
 namespace allinoneapi.Data
@@ -33,16 +27,6 @@ namespace allinoneapi.Data
         {
             configurationBuilder.Properties<decimal>()
                 .HavePrecision(20, 10);
-        }
-        public void Dispose()
-        {
-            try
-            {
-            }
-            finally
-            {
-                Console.WriteLine("context dispose");
-            }
         }
     }
 }
