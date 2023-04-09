@@ -53,5 +53,5 @@ app.MapControllerRoute(
 
 
 
-app.Run();
-//BenchmarkRunner.Run<BenchmarkAPI>();
+//app.Run();
+BenchmarkRunner.Run<BenchmarkAPI>();
