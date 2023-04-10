@@ -1,5 +1,4 @@
 ﻿using allinoneapi.Controllers;
-using allinoneapi.Models;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Engines;
 using Binance.Net.Clients;
@@ -24,7 +23,7 @@ namespace allinoneapi
         public void Test1()
         {
             CryptoController cryptoController = new CryptoController();
-            cryptoController.UpdateCurrentPrice2();
+            cryptoController.UpdateCurrentPrice();
             cryptoController.Dispose();
             //Thread.Sleep(3000);
         }

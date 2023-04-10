@@ -1,7 +1,6 @@
 using allinoneapi;
 using allinoneapi.Controllers;
 using allinoneapi.Data;
-using allinoneapi.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
 using System.Text.Json.Serialization;

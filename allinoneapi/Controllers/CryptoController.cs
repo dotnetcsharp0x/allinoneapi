@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using allinoneapi.Models;
 using Binance.Net.Clients;
 using System.Collections;
 using BenchmarkDotNet.Attributes;
@@ -7,6 +6,13 @@ using allinoneapi.Data;
 using RestSharp;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
+using Binance.Net.Interfaces;
+using CryptoExchange.Net.Objects;
+using Binance.Net.Objects.Models.Spot;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using api.allinoneapi;
+using api.allinoneapi.Models;
+using Binance.Net.Enums;
 
 namespace allinoneapi.Controllers
 {
@@ -22,11 +28,8 @@ namespace allinoneapi.Controllers
         [Route("UpdatePairs")]
         public HashSet<Crypto_Symbols> UpdatePairs()
         {
-            BinanceClient client = new();
-            Console.WriteLine("log");
-            var resp = client.SpotApi.ExchangeData.GetProductsAsync().Result.Data.Select(x => new Crypto_Symbols { Symbol = x.Symbol, QuoteAsset = x.QuoteAsset, BaseAsset = x.BaseAsset }).ToHashSet();
-            client.Dispose();
-            return resp;
+            Crypto crypto = new Crypto();
+            return crypto.Binance_GetSymbols();
         }
         #endregion
 
@@ -35,62 +38,32 @@ namespace allinoneapi.Controllers
         [Route("UpdateCurrentPrice")]
         public HashSet<Crypto_Price> UpdateCurrentPrice()
         {
-            BinanceClient client = new();
-            var resp = client.SpotApi.ExchangeData.GetPricesAsync().Result.Data.Select(x => new Crypto_Price { Symbol = x.Symbol, Price = x.Price, DateTime = DateTime.Now }).ToHashSet();
-            Console.WriteLine(resp);
-            client.Dispose();
-            return resp;
+            Crypto crypto = new Crypto();
+            return crypto.Binance_GetCurrentPrice();
         }
+        #endregion
+
+        #region DayOfDayData
         [HttpGet]
-        [Route("UpdateCurrentPrice2")]
-        public HashSet<Binance_Price_quoted> UpdateCurrentPrice2()
+        [Route("DayOfDayData")]
+        public IEnumerable<Binance_CryptoKandles> DayOfDayData(string? symbol)
         {
-            HashSet<Binance_Price_quoted>? serilizerForBinanceRequest;
-            string url = "https://api.binance.com/api/v1/ticker/price";
-            var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
-            request.AddHeader("Content-Type", "application/json");
-            var r = client.Execute(request).Content;
-            serilizerForBinanceRequest = JsonSerializer.Deserialize<HashSet<Binance_Price_quoted>>(r);
-            if (serilizerForBinanceRequest == null)
-            {
-                serilizerForBinanceRequest = new HashSet<Binance_Price_quoted>();
-            }
-            return serilizerForBinanceRequest;
+            Crypto crypto = new Crypto();
+            return crypto.Binance_DayOfDayData(symbol);
         }
         #endregion
 
         #region GetKandles
         [HttpGet]
         [Route("GetKandles")]
-        public int GetKandles()
+        public Binance_CryptoKandles GetKandles(string symbol)
         {
-            BinanceClient client = new();
-            var r = client.SpotApi.ExchangeData.GetKlinesAsync("BTCUSDT",Binance.Net.Enums.KlineInterval.OneMinute, DateTime.Now.AddMinutes(-2), DateTime.Now,1).Result;
-            Console.WriteLine(r);
-            //var r = client.SpotApi.ExchangeData.GetProductsAsync().Result;
-            return 1;
-            //await using (allinoneapiContext _context = new allinoneapiContext())
-            //{
-            //    await _context.Database.ExecuteSqlRawAsync("SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;");
-            //    var CurrentPairsInDb = (from c in _context.Crypto_Symbols where c.Symbol=="BTCUSDT" select c);
-            //    var BnKandles = new List<Binance_KandlesArray>();
-            //    string url = null;
-            //    foreach (var i in CurrentPairsInDb) {
-            //        url = $"https://api.binance.com/api/v1/klines?symbol={i.Symbol}&interval=1m&limit=1";
-            //        var client = new RestClient(url);
-            //        var request = new RestRequest(url, Method.Get);
-            //        request.AddHeader("Content-Type", "application/json");
-            //        var r = client.Execute(request).Content.Replace("[[", "[").Replace("]]", "]");
-            //        var result = JsonSerializer.Deserialize<List<Binance_Kanldes>>(r);
-            //        //var BnKandlest = JsonSerializer.Deserialize<List<Binance_KandlesArray>>(r);
-            //        //Console.WriteLine(BnKandles);
-            //    }
-            //    return 1;
-            //}
+            Crypto crypto = new Crypto();
+            return crypto.Binance_GetKandles(symbol,-182, 1);
         }
         #endregion
 
+        #region DisposeCtor
         ~CryptoController()
         {
             Console.WriteLine("controller ctor");
@@ -102,5 +75,7 @@ namespace allinoneapi.Controllers
             GC.SuppressFinalize(this);
             Console.WriteLine("controller dispose");
         }
+
+        #endregion
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace allinoneapi.Models
+﻿namespace api.allinoneapi.Models
 {
     public class getPrice
     {

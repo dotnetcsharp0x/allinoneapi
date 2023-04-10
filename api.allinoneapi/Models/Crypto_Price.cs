@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace allinoneapi.Models
+namespace api.allinoneapi.Models
 {
     public class Crypto_Price
     {

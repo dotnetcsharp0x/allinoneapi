@@ -1,6 +1,6 @@
 ﻿#nullable disable
 using Microsoft.EntityFrameworkCore;
-using allinoneapi.Models;
+using api.allinoneapi.Models;
 //using System.Data.Entity;
 
 namespace allinoneapi.Data

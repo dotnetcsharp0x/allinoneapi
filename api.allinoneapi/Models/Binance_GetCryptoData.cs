@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace allinoneapi.Models
+namespace api.allinoneapi.Models
 {
     public class Binance_GetCryptoData
     {
