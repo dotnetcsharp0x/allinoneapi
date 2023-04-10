@@ -18,8 +18,8 @@ namespace api.allinoneapi
         }
         #endregion
 
-        #region GetCurrentPrice
-        public HashSet<Crypto_Price> Binance_GetCurrentPrice()
+        #region GetCurrentPrices
+        public HashSet<Crypto_Price> Binance_GetCurrentPrices()
         {
             BinanceClient client = new();
             var resp = client.SpotApi.ExchangeData.GetPricesAsync().Result.Data.Select(x => new Crypto_Price { Symbol = x.Symbol, Price = x.Price, DateTime = DateTime.Now }).ToHashSet();

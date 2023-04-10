@@ -39,7 +39,7 @@ namespace allinoneapi.Controllers
         public HashSet<Crypto_Price> UpdateCurrentPrice()
         {
             Crypto crypto = new Crypto();
-            return crypto.Binance_GetCurrentPrice();
+            return crypto.Binance_GetCurrentPrices();
         }
         #endregion
 
