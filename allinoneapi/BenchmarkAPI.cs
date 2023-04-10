@@ -1,8 +1,6 @@
-﻿using allinoneapi.Controllers;
+﻿using api.allinoneapi;
 using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Engines;
-using Binance.Net.Clients;
-using System.Collections.Immutable;
+
 //using HtmlExporterAttribute = BenchmarkDotNet.Attributes.Exporters.HtmlExporterAttribute;
 
 namespace allinoneapi
@@ -22,9 +20,9 @@ namespace allinoneapi
         [Benchmark]
         public void Test1()
         {
-            CryptoController cryptoController = new CryptoController();
-            cryptoController.UpdateCurrentPrice();
-            cryptoController.Dispose();
+            Crypto crypto = new Crypto();
+            crypto.Binance_GetCurrentPrices();
+            crypto.Dispose();
             //Thread.Sleep(3000);
         }
         //[Benchmark]

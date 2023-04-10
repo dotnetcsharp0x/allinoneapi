@@ -21,6 +21,7 @@ namespace allinoneapi.Controllers
     [ApiController]
     public class CryptoController : ControllerBase, IDisposable
     {
+        Crypto crypto = new Crypto();
         public CryptoController() { }
 
         #region UpdatePairs
@@ -28,7 +29,6 @@ namespace allinoneapi.Controllers
         [Route("UpdatePairs")]
         public HashSet<Crypto_Symbols> UpdatePairs()
         {
-            Crypto crypto = new Crypto();
             return crypto.Binance_GetSymbols();
         }
         #endregion
@@ -38,7 +38,6 @@ namespace allinoneapi.Controllers
         [Route("UpdateCurrentPrice")]
         public HashSet<Crypto_Price> UpdateCurrentPrice()
         {
-            Crypto crypto = new Crypto();
             return crypto.Binance_GetCurrentPrices();
         }
         #endregion
@@ -48,7 +47,6 @@ namespace allinoneapi.Controllers
         [Route("DayOfDayData")]
         public IEnumerable<Binance_CryptoKandles> DayOfDayData(string? symbol)
         {
-            Crypto crypto = new Crypto();
             return crypto.Binance_DayOfDayData(symbol);
         }
         #endregion
@@ -56,10 +54,9 @@ namespace allinoneapi.Controllers
         #region GetKandles
         [HttpGet]
         [Route("GetKandles")]
-        public Binance_CryptoKandles GetKandles(string symbol)
+        public Binance_CryptoKandles GetKandles(string? symbol,int lines)
         {
-            Crypto crypto = new Crypto();
-            return crypto.Binance_GetKandles(symbol,-182, 1);
+            return crypto.Binance_GetKandles(symbol,-182, lines);
         }
         #endregion
 
@@ -70,6 +67,7 @@ namespace allinoneapi.Controllers
         }
         public void Dispose()
         {
+            crypto.Dispose();
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.SuppressFinalize(this);

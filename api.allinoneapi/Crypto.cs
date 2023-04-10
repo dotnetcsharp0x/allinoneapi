@@ -11,7 +11,6 @@ namespace api.allinoneapi
         public HashSet<Crypto_Symbols> Binance_GetSymbols()
         {
             BinanceClient client = new();
-            Console.WriteLine("log");
             var resp = client.SpotApi.ExchangeData.GetProductsAsync().Result.Data.Select(x => new Crypto_Symbols { Symbol = x.Symbol, QuoteAsset = x.QuoteAsset, BaseAsset = x.BaseAsset }).ToHashSet();
             client.Dispose();
             return resp;
@@ -96,13 +95,21 @@ namespace api.allinoneapi
         #endregion
 
         #region GetKandles
-        public Binance_CryptoKandles Binance_GetKandles(string symbol,int seconds,int lines)
+        public Binance_CryptoKandles Binance_GetKandles(string? symbol,int seconds,int lines)
         {
-            if (symbol.Length > 0)
+            if (symbol != null)
             {
                 BinanceClient client = new();
                 var r = client.SpotApi.ExchangeData.GetKlinesAsync(symbol, Binance.Net.Enums.KlineInterval.OneMinute, DateTime.Now.AddMinutes(seconds), DateTime.Now.AddMinutes(0), lines).Result.Data;
-                return r.Select(x => new Binance_CryptoKandles { openTime = x.OpenTime, openPrice = x.OpenPrice, highPrice = x.HighPrice, lowPrice = x.LowPrice, closePrice = x.ClosePrice, volume = x.Volume, closeTime = x.CloseTime, quoteVolume = x.QuoteVolume, tradeCount = x.TradeCount, takerBuyBaseVolume = x.TakerBuyBaseVolume, takerBuyQuoteVolume = x.TakerBuyQuoteVolume, symbol = symbol, source = "Binance" }).First();
+                if (r != null)
+                {
+                    return r.Select(x => new Binance_CryptoKandles { openTime = x.OpenTime, openPrice = x.OpenPrice, highPrice = x.HighPrice, lowPrice = x.LowPrice, closePrice = x.ClosePrice, volume = x.Volume, closeTime = x.CloseTime, quoteVolume = x.QuoteVolume, tradeCount = x.TradeCount, takerBuyBaseVolume = x.TakerBuyBaseVolume, takerBuyQuoteVolume = x.TakerBuyQuoteVolume, symbol = symbol, source = "Binance" }).First();
+
+                }
+                else
+                {
+                    return new Binance_CryptoKandles();
+                }
             }
             else
             {
