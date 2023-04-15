@@ -19,9 +19,13 @@ namespace allinoneapi.Data
         {
             optionsBuilder.UseSqlServer(connectionString);
         }
-        
+
+        #region Tables
         public DbSet<Crypto_Symbols> Crypto_Symbols { get; set; }
         public DbSet<Crypto_Price> Crypto_Price { get; set; }
+
+        #endregion
+
         protected override void ConfigureConventions(
     ModelConfigurationBuilder configurationBuilder)
         {

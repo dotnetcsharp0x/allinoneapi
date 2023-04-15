@@ -1,4 +1,6 @@
 using System.Text;
+using System.Threading;
+using Google.Protobuf.Collections;
 using Google.Protobuf.WellKnownTypes;
 using Tinkoff.InvestApi.V1;
 
@@ -12,36 +14,37 @@ public class InstrumentsServiceSample
     {
         _service = service;
     }
-    public async Task<SharesResponse> GetInstrumentByTicker(CancellationToken cancellationToken)
+    public async Task<RepeatedField<Share>> GetStocks(CancellationToken cancellationToken)
     {
         var shares = await _service.SharesAsync(cancellationToken);
-        //List<Shares> sh = new List<Shares>();
-        //Shares sh1 = new Shares();
-        //foreach (var share in shares.Instruments)
-        //{
-        //    if (share.Ticker == "BTI")
-        //    {
-        //        sh1.Name = share.Name;
-        //        sh1.Ticker = share.Ticker;
-        //        sh1.Currency = share.Currency;
-        //        sh1.DivYieldFlag = share.DivYieldFlag;
-        //        sh1.Exchange = share.Exchange;
-        //        sh1.Figi = share.Figi;
-        //        //sh1.IpoDate = share.IpoDate.ToString();
-        //        sh1.Isin = share.Isin;
-        //        sh1.BuyAvailableFlag = share.BuyAvailableFlag;
-        //        sh1.Nominal = share.Nominal.ToString();
-        //        sh1.Sector = share.Sector;
-        //        //System.Diagnostics.Debug.WriteLine("test: " + share);
-        //        //System.Diagnostics.Debug.WriteLine("test2: " + sh1);
-        //        //System.Diagnostics.Debug.WriteLine("test2: " + shares.Instruments);
-        //        sh.Add(sh1);
-        //    }
-        //        //sh.Add(share.Name,share.Ticker,share.Currency,share.DivYieldFlag,share.Exchange,share.Figi,share.IpoDate,share.Isin,share.BuyAvailableFlag,share.Name,share.Nominal,share.Sector);
-        //    }
-        return shares;
+        return shares.Instruments;
     }
-    public async Task<string> GetInstrumentsDescriptionAsync(CancellationToken cancellationToken)
+    public async Task<RepeatedField<Bond>> GetBonds(CancellationToken cancellationToken)
+    {
+        var bonds = await _service.BondsAsync(cancellationToken);
+        return bonds.Instruments;
+    }
+    public async Task<RepeatedField<Etf>> GetEtfs(CancellationToken cancellationToken)
+    {
+        var etfs = await _service.EtfsAsync(cancellationToken);
+        return etfs.Instruments;
+    }
+    public async Task<RepeatedField<Future>> GetFutures(CancellationToken cancellationToken)
+    {
+        var futures = await _service.FuturesAsync(cancellationToken);
+        return futures.Instruments;
+    }
+
+    public async Task<TradingSchedulesResponse> TradingSchedulesResponseSPB(CancellationToken cancellationToken)
+    {
+        return await _service.TradingSchedulesAsync(new TradingSchedulesRequest
+        {
+            Exchange = "SPB",
+            From = Timestamp.FromDateTime(DateTime.UtcNow.Date.AddDays(1)),
+            To = Timestamp.FromDateTime(DateTime.UtcNow.Date.AddDays(3))
+        }, cancellationToken: cancellationToken);
+    }
+        public async Task<string> GetInstrumentsDescriptionAsync(CancellationToken cancellationToken)
     {
         var shares = await _service.SharesAsync(cancellationToken);
         var etfs = await _service.EtfsAsync(cancellationToken);
@@ -83,6 +86,7 @@ public class InstrumentsServiceSample
             From = Timestamp.FromDateTime(DateTime.UtcNow.Date.AddDays(1)),
             To = Timestamp.FromDateTime(DateTime.UtcNow.Date.AddDays(3))
         }, cancellationToken: cancellationToken);
+
 
         return new InstrumentsFormatter(shares.Instruments, etfs.Instruments, bonds.Instruments, futures.Instruments,
             dividends, accruedInterests, futuresMargin, tradingSchedulesResponse).Format();

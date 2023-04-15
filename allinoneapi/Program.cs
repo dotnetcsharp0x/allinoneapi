@@ -1,9 +1,7 @@
 using allinoneapi.Data;
 using AspNetCoreRateLimit;
 using DotNet.RateLimiter.Models;
-using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
-using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +19,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<allinoneapiContext>();
 //builder.Services.AddInvestApiClient((_, settings) => context.Configuration.Bind(settings));
 //builder.Services.AddHttpsRedirection();
-builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = "t.5vC9A1M_UoeJ4yr_7eczcs9gI-X7YJJtdqsWnyMXcrky_LqzueblUJhVYzmcMOPmz7ZqbANp8_9r4qma5D9UBA");
+builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = "X");
 builder.Services.AddMemoryCache();
 builder.Services.Configure<IpRateLimitOptions>(options =>
 {
@@ -73,7 +71,7 @@ app.UseRouting();
 var fixedPolicy = "fixed";
 app.MapControllerRoute(
    name: "default",
-   pattern: "{controller=Home}/{action=Index}/{id?}").RequireRateLimiting(fixedPolicy);
+   pattern: "{controller=Home}/{action=Index}/{id?}");
 
 
 
