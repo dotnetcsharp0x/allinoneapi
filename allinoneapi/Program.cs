@@ -6,6 +6,8 @@ using System.Net;
 using System.Text.Json.Serialization;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Attributes;
+using Microsoft.Extensions.Hosting;
+using api.allinoneapi.InvestApi.Sample;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +23,9 @@ builder.Services.AddSwaggerGen();
 //    op.CommandTimeout(60)
 //));
 builder.Services.AddDbContext<allinoneapiContext>();
+//builder.Services.AddInvestApiClient((_, settings) => context.Configuration.Bind(settings));
 //builder.Services.AddHttpsRedirection();
+builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = "t.5vC9A1M_UoeJ4yr_7eczcs9gI-X7YJJtdqsWnyMXcrky_LqzueblUJhVYzmcMOPmz7ZqbANp8_9r4qma5D9UBA");
 var app = builder.Build();
 
 
@@ -52,5 +56,5 @@ app.MapControllerRoute(
 
 
 
-//app.Run();
-BenchmarkRunner.Run<BenchmarkAPI>();
+await app.RunAsync();
+//BenchmarkRunner.Run<BenchmarkAPI>();

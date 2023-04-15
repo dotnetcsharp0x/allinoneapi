@@ -24,10 +24,10 @@ namespace allinoneapi.Controllers
         Crypto crypto = new Crypto();
         public CryptoController() { }
 
-        #region UpdatePairs
+        #region GetInstruments
         [HttpGet]
-        [Route("UpdatePairs")]
-        public HashSet<Crypto_Symbols> UpdatePairs()
+        [Route("GetInstruments")]
+        public HashSet<Crypto_Symbols> GetInstruments()
         {
             return crypto.Binance_GetSymbols();
         }
@@ -35,8 +35,8 @@ namespace allinoneapi.Controllers
 
         #region UpdateCurrentPrice
         [HttpGet]
-        [Route("UpdateCurrentPrice")]
-        public HashSet<Crypto_Price> UpdateCurrentPrice()
+        [Route("GetPrices")]
+        public HashSet<Crypto_Price> GetPrices()
         {
             return crypto.Binance_GetCurrentPrices();
         }
