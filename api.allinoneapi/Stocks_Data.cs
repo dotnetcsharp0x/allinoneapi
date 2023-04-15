@@ -1,12 +1,4 @@
-﻿using api.allinoneapi;
-using CryptoExchange.Net.Interfaces;
-using Google.Protobuf.WellKnownTypes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tinkoff.InvestApi;
+﻿using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 
 namespace api.allinoneapi
@@ -14,10 +6,12 @@ namespace api.allinoneapi
     
     public class Stocks_Data
     {
+        #region GetInstruments
         public async Task<SharesResponse> GetInstruments(CancellationToken stoppingToken, InvestApiClient _investApi)
         {
             var instrumentsDescription = await new InstrumentsServiceSample(_investApi.Instruments).GetInstrumentByTicker(stoppingToken);
             return instrumentsDescription;
         }
+        #endregion
     }
 }

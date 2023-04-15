@@ -1,13 +1,9 @@
-using allinoneapi;
-using allinoneapi.Controllers;
 using allinoneapi.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Net;
-using System.Text.Json.Serialization;
-using BenchmarkDotNet.Running;
-using BenchmarkDotNet.Attributes;
-using Microsoft.Extensions.Hosting;
-using api.allinoneapi.InvestApi.Sample;
+using AspNetCoreRateLimit;
+using DotNet.RateLimiter.Models;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.Extensions.Configuration;
+using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +22,29 @@ builder.Services.AddDbContext<allinoneapiContext>();
 //builder.Services.AddInvestApiClient((_, settings) => context.Configuration.Bind(settings));
 //builder.Services.AddHttpsRedirection();
 builder.Services.AddInvestApiClient((_, settings) => settings.AccessToken = "t.5vC9A1M_UoeJ4yr_7eczcs9gI-X7YJJtdqsWnyMXcrky_LqzueblUJhVYzmcMOPmz7ZqbANp8_9r4qma5D9UBA");
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.HttpStatusCode = 429;
+    options.RealIpHeader = "X-Real-IP";
+    options.ClientIdHeader = "X-ClientId";
+    options.GeneralRules = new List<RateLimitRule>
+        {
+            new RateLimitRule
+            {
+                Endpoint = "*",
+                Period = "1s",
+                Limit = 1,
+            }
+        };
+});
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
 var app = builder.Build();
 
 
@@ -38,6 +57,7 @@ else
     app.UseExceptionHandler("/Home/Error");
     
 }
+app.UseIpRateLimiting();
 app.UseHsts();
 // Configure the HTTP request pipeline.
 
@@ -50,9 +70,11 @@ app.UseHttpsRedirection();
 //app.UseAuthorization();
 app.MapControllers();
 app.UseRouting();
+var fixedPolicy = "fixed";
 app.MapControllerRoute(
    name: "default",
-   pattern: "{controller=Home}/{action=Index}/{id?}");
+   pattern: "{controller=Home}/{action=Index}/{id?}").RequireRateLimiting(fixedPolicy);
+
 
 
 

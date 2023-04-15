@@ -29,7 +29,7 @@ namespace api.allinoneapi
         #endregion
 
         #region DayOfDayData
-        public IEnumerable<Binance_CryptoKandles> Binance_DayOfDayData(string? symbol)
+        public IEnumerable<Binance_CryptoKandles> Binance_DayOfDayData(string? symbol="BTCUSDT")
         {
             BinanceClient client = new();
             if (symbol != null)
@@ -95,7 +95,7 @@ namespace api.allinoneapi
         #endregion
 
         #region GetKandles
-        public Binance_CryptoKandles Binance_GetKandles(string? symbol,int seconds,int lines)
+        public HashSet<Binance_CryptoKandles> Binance_GetKandles(string? symbol,int seconds,int lines)
         {
             if (symbol != null)
             {
@@ -103,17 +103,17 @@ namespace api.allinoneapi
                 var r = client.SpotApi.ExchangeData.GetKlinesAsync(symbol, Binance.Net.Enums.KlineInterval.OneMinute, DateTime.Now.AddMinutes(seconds), DateTime.Now.AddMinutes(0), lines).Result.Data;
                 if (r != null)
                 {
-                    return r.Select(x => new Binance_CryptoKandles { openTime = x.OpenTime, openPrice = x.OpenPrice, highPrice = x.HighPrice, lowPrice = x.LowPrice, closePrice = x.ClosePrice, volume = x.Volume, closeTime = x.CloseTime, quoteVolume = x.QuoteVolume, tradeCount = x.TradeCount, takerBuyBaseVolume = x.TakerBuyBaseVolume, takerBuyQuoteVolume = x.TakerBuyQuoteVolume, symbol = symbol, source = "Binance" }).First();
+                    return r.Select(x => new Binance_CryptoKandles { openTime = x.OpenTime, openPrice = x.OpenPrice, highPrice = x.HighPrice, lowPrice = x.LowPrice, closePrice = x.ClosePrice, volume = x.Volume, closeTime = x.CloseTime, quoteVolume = x.QuoteVolume, tradeCount = x.TradeCount, takerBuyBaseVolume = x.TakerBuyBaseVolume, takerBuyQuoteVolume = x.TakerBuyQuoteVolume, symbol = symbol, source = "Binance" }).ToHashSet();
 
                 }
                 else
                 {
-                    return new Binance_CryptoKandles();
+                    return new HashSet<Binance_CryptoKandles>();
                 }
             }
             else
             {
-                return new Binance_CryptoKandles();
+                return new HashSet<Binance_CryptoKandles>();
             }
         }
         #endregion

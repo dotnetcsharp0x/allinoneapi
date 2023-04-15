@@ -1,18 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
-using Binance.Net.Clients;
-using System.Collections;
-using BenchmarkDotNet.Attributes;
-using allinoneapi.Data;
-using RestSharp;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json;
-using Binance.Net.Interfaces;
-using CryptoExchange.Net.Objects;
-using Binance.Net.Objects.Models.Spot;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using api.allinoneapi;
 using api.allinoneapi.Models;
-using Binance.Net.Enums;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Collections.Generic;
+using AspNetCoreRateLimit;
 
 namespace allinoneapi.Controllers
 {
@@ -22,7 +13,12 @@ namespace allinoneapi.Controllers
     public class CryptoController : ControllerBase, IDisposable
     {
         Crypto crypto = new Crypto();
-        public CryptoController() { }
+        private readonly ILogger<CryptoController> _logger;
+        private readonly IIpPolicyStore _policyStore;
+        public CryptoController(ILogger<CryptoController> logger,IIpPolicyStore policyStore) {
+            _logger = logger;
+            _policyStore = policyStore;
+        }
 
         #region GetInstruments
         [HttpGet]
@@ -45,7 +41,8 @@ namespace allinoneapi.Controllers
         #region DayOfDayData
         [HttpGet]
         [Route("DayOfDayData")]
-        public IEnumerable<Binance_CryptoKandles> DayOfDayData(string? symbol)
+
+        public IEnumerable<Binance_CryptoKandles> DayOfDayData(string? symbol="BTCUSDT")
         {
             return crypto.Binance_DayOfDayData(symbol);
         }
@@ -54,13 +51,30 @@ namespace allinoneapi.Controllers
         #region GetKandles
         [HttpGet]
         [Route("GetKandles")]
-        public Binance_CryptoKandles GetKandles(string? symbol,int lines)
+        public HashSet<Binance_CryptoKandles> GetKandles(string? symbol = "BTCUSDT",int minutes=1,int lines=1)
         {
-            return crypto.Binance_GetKandles(symbol,-182, lines);
+            try
+            {
+                int to_minus = -182;
+                to_minus -= minutes;
+                var resp = crypto.Binance_GetKandles(symbol, to_minus, lines);
+                if (resp != null)
+                {
+                    return resp;
+                }
+                else
+                {
+                    return new HashSet<Binance_CryptoKandles>() { };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new HashSet<Binance_CryptoKandles>() { };
+            }
         }
         #endregion
 
-        #region DisposeCtor
+            #region DisposeCtor
         ~CryptoController()
         {
             Console.WriteLine("controller ctor");
