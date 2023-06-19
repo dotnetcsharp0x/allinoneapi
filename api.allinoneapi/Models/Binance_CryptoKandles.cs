@@ -16,5 +16,6 @@
         public decimal tradeCount { get; set; }
         public decimal takerBuyBaseVolume { get; set; }
         public decimal takerBuyQuoteVolume { get; set; }
+        public DateTime? update_date { get; set; }
     }
 }

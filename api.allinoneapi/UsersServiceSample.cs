@@ -2,7 +2,7 @@ using System.Text;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 
-namespace api.allinoneapi.InvestApi.Sample;
+namespace api.allinoneapi;
 
 public class UsersServiceSample
 {
@@ -107,15 +107,15 @@ public class UsersServiceSample
 
             stringBuilder.AppendLine().AppendLine("Tariff limits:");
             foreach (var limit in _tariff.UnaryLimits)
-            foreach (var method in limit.Methods)
-                stringBuilder.AppendFormat("- {0} rpm for method {1}", limit.LimitPerMinute, method)
-                    .AppendLine();
+                foreach (var method in limit.Methods)
+                    stringBuilder.AppendFormat("- {0} rpm for method {1}", limit.LimitPerMinute, method)
+                        .AppendLine();
 
 
             foreach (var limit in _tariff.StreamLimits)
-            foreach (var stream in limit.Streams)
-                stringBuilder.AppendFormat("- {0} connection(s) for stream {1}", limit.Limit, stream)
-                    .AppendLine();
+                foreach (var stream in limit.Streams)
+                    stringBuilder.AppendFormat("- {0} connection(s) for stream {1}", limit.Limit, stream)
+                        .AppendLine();
 
             return stringBuilder.ToString();
         }

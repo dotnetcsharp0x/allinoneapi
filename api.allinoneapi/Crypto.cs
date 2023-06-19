@@ -1,5 +1,6 @@
 ﻿using api.allinoneapi.Models;
 using Binance.Net.Clients;
+using Tinkoff.InvestApi.V1;
 
 namespace api.allinoneapi
 {
@@ -11,6 +12,8 @@ namespace api.allinoneapi
         public HashSet<Crypto_Symbols> Binance_GetSymbols()
         {
             BinanceClient client = new();
+            var resp1 = client.SpotApi.ExchangeData.GetProductsAsync().Result;
+            Console.Write(resp1);
             var resp = client.SpotApi.ExchangeData.GetProductsAsync().Result.Data.Select(x => new Crypto_Symbols { Symbol = x.Symbol, QuoteAsset = x.QuoteAsset, BaseAsset = x.BaseAsset }).ToHashSet();
             client.Dispose();
             return resp;
@@ -95,12 +98,41 @@ namespace api.allinoneapi
         #endregion
 
         #region GetKandles
-        public HashSet<Binance_CryptoKandles> Binance_GetKandles(string? symbol,int seconds,int lines)
+        public HashSet<Binance_CryptoKandles> Binance_GetKandles(string? symbol,int seconds,int lines, string interval)
         {
             if (symbol != null)
             {
                 BinanceClient client = new();
-                var r = client.SpotApi.ExchangeData.GetKlinesAsync(symbol, Binance.Net.Enums.KlineInterval.OneMinute, DateTime.Now.AddMinutes(seconds), DateTime.Now.AddMinutes(0), lines).Result.Data;
+                var inter= Binance.Net.Enums.KlineInterval.OneMinute;
+                if (interval == "5M")
+                {
+                    inter = Binance.Net.Enums.KlineInterval.FiveMinutes;
+                }
+                if (interval == "1H")
+                {
+                    inter = Binance.Net.Enums.KlineInterval.OneHour;
+                }
+                if (interval == "1D")
+                {
+                    inter = Binance.Net.Enums.KlineInterval.OneDay;
+                }
+                if (interval == "1W")
+                {
+                    inter = Binance.Net.Enums.KlineInterval.OneWeek;
+                }
+                if (interval == "1M")
+                {
+                    inter = Binance.Net.Enums.KlineInterval.OneMonth;
+                }
+                if (interval == "1Y")
+                {
+                    inter = Binance.Net.Enums.KlineInterval.OneMonth;
+                }
+                if (interval == "5Y")
+                {
+                    inter = Binance.Net.Enums.KlineInterval.OneMonth;
+                }
+                var r = client.SpotApi.ExchangeData.GetKlinesAsync(symbol, inter, DateTime.Now.AddMinutes(seconds), DateTime.Now.AddMinutes(0), lines).Result.Data;
                 if (r != null)
                 {
                     return r.Select(x => new Binance_CryptoKandles { openTime = x.OpenTime, openPrice = x.OpenPrice, highPrice = x.HighPrice, lowPrice = x.LowPrice, closePrice = x.ClosePrice, volume = x.Volume, closeTime = x.CloseTime, quoteVolume = x.QuoteVolume, tradeCount = x.TradeCount, takerBuyBaseVolume = x.TakerBuyBaseVolume, takerBuyQuoteVolume = x.TakerBuyQuoteVolume, symbol = symbol, source = "Binance" }).ToHashSet();

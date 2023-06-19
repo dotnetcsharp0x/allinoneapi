@@ -29,7 +29,7 @@ namespace allinoneapi.Data
         protected override void ConfigureConventions(
     ModelConfigurationBuilder configurationBuilder)
         {
-            configurationBuilder.Properties<decimal>()
+            configurationBuilder.Properties<double>()
                 .HavePrecision(20, 10);
         }
     }

@@ -3,7 +3,7 @@ using Google.Protobuf.WellKnownTypes;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
 
-namespace api.allinoneapi.InvestApi.Sample;
+namespace api.allinoneapi;
 
 public class OperationsServiceSample
 {
@@ -20,14 +20,14 @@ public class OperationsServiceSample
         var accountId = accounts.Accounts.First().Id;
 
         var operations = _investApiClient.Operations;
-        var portfolio = await operations.GetPortfolioAsync(new PortfolioRequest {AccountId = accountId},
+        var portfolio = await operations.GetPortfolioAsync(new PortfolioRequest { AccountId = accountId },
             cancellationToken: cancellationToken);
 
-        var positions = await operations.GetPositionsAsync(new PositionsRequest {AccountId = accountId},
+        var positions = await operations.GetPositionsAsync(new PositionsRequest { AccountId = accountId },
             cancellationToken: cancellationToken);
 
         var withdrawLimits =
-            await operations.GetWithdrawLimitsAsync(new WithdrawLimitsRequest {AccountId = accountId},
+            await operations.GetWithdrawLimitsAsync(new WithdrawLimitsRequest { AccountId = accountId },
                 cancellationToken: cancellationToken);
 
         var operationsResponse = await operations.GetOperationsAsync(new OperationsRequest
@@ -46,11 +46,11 @@ public class OperationsServiceSample
         var accountId = accounts.Accounts.First().Id;
 
         var operations = _investApiClient.Operations;
-        var portfolio = operations.GetPortfolio(new PortfolioRequest {AccountId = accountId});
+        var portfolio = operations.GetPortfolio(new PortfolioRequest { AccountId = accountId });
 
-        var positions = operations.GetPositions(new PositionsRequest {AccountId = accountId});
+        var positions = operations.GetPositions(new PositionsRequest { AccountId = accountId });
 
-        var withdrawLimits = operations.GetWithdrawLimits(new WithdrawLimitsRequest {AccountId = accountId});
+        var withdrawLimits = operations.GetWithdrawLimits(new WithdrawLimitsRequest { AccountId = accountId });
 
         var operationsResponse = operations.GetOperations(new OperationsRequest
         {
@@ -82,22 +82,22 @@ public class OperationsServiceSample
         {
             var stringBuilder = new StringBuilder();
             stringBuilder.AppendLine("Portfolio:")
-                .AppendFormat("- Shares: {0} {1}", (decimal) _portfolio.TotalAmountShares,
+                .AppendFormat("- Shares: {0} {1}", (decimal)_portfolio.TotalAmountShares,
                     _portfolio.TotalAmountShares.Currency)
                 .AppendLine()
-                .AppendFormat("- Bonds: {0} {1}", (decimal) _portfolio.TotalAmountBonds,
+                .AppendFormat("- Bonds: {0} {1}", (decimal)_portfolio.TotalAmountBonds,
                     _portfolio.TotalAmountBonds.Currency)
                 .AppendLine()
-                .AppendFormat("- Etf: {0} {1}", (decimal) _portfolio.TotalAmountEtf,
+                .AppendFormat("- Etf: {0} {1}", (decimal)_portfolio.TotalAmountEtf,
                     _portfolio.TotalAmountEtf.Currency)
                 .AppendLine()
-                .AppendFormat("- Currencies: {0} {1}", (decimal) _portfolio.TotalAmountCurrencies,
+                .AppendFormat("- Currencies: {0} {1}", (decimal)_portfolio.TotalAmountCurrencies,
                     _portfolio.TotalAmountCurrencies.Currency)
                 .AppendLine()
-                .AppendFormat("- Futures: {0} {1}", (decimal) _portfolio.TotalAmountFutures,
+                .AppendFormat("- Futures: {0} {1}", (decimal)_portfolio.TotalAmountFutures,
                     _portfolio.TotalAmountFutures.Currency)
                 .AppendLine()
-                .AppendFormat("- Expected yield: {0}", (decimal) _portfolio.ExpectedYield)
+                .AppendFormat("- Expected yield: {0}", (decimal)_portfolio.ExpectedYield)
                 .AppendLine()
                 .AppendLine();
 
@@ -105,7 +105,7 @@ public class OperationsServiceSample
             {
                 stringBuilder.AppendLine().AppendLine("Withdraw limits:");
                 foreach (var value in _withdrawLimits.Money)
-                    stringBuilder.AppendFormat("- {0} {1}", (decimal) value, value.Currency)
+                    stringBuilder.AppendFormat("- {0} {1}", (decimal)value, value.Currency)
                         .AppendLine();
             }
 
@@ -122,7 +122,7 @@ public class OperationsServiceSample
                 stringBuilder.AppendLine().AppendLine("Operations:");
                 foreach (var operation in _operations.Operations)
                     stringBuilder.AppendFormat("- [{0}] {1} {2} {3}", operation.Figi, operation.Date,
-                            (decimal) operation.Payment, operation.Currency)
+                            (decimal)operation.Payment, operation.Currency)
                         .AppendLine();
             }
 

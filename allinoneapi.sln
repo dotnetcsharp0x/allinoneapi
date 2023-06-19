@@ -5,7 +5,9 @@ VisualStudioVersion = 17.4.33205.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "allinoneapi", "allinoneapi\allinoneapi.csproj", "{6E110A25-9375-4BBC-830A-D7B26DF30FBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "api.allinoneapi", "api.allinoneapi\api.allinoneapi.csproj", "{C6189BD0-A96A-4FE6-ACF3-E9D0BCB357FB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "api.allinoneapi", "api.allinoneapi\api.allinoneapi.csproj", "{C6189BD0-A96A-4FE6-ACF3-E9D0BCB357FB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "allinoneapiTests", "allinoneapiTests\allinoneapiTests.csproj", "{66D16DD4-D539-457F-AC71-A7D40AC5ABC1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C6189BD0-A96A-4FE6-ACF3-E9D0BCB357FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6189BD0-A96A-4FE6-ACF3-E9D0BCB357FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6189BD0-A96A-4FE6-ACF3-E9D0BCB357FB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{66D16DD4-D539-457F-AC71-A7D40AC5ABC1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{66D16DD4-D539-457F-AC71-A7D40AC5ABC1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{66D16DD4-D539-457F-AC71-A7D40AC5ABC1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{66D16DD4-D539-457F-AC71-A7D40AC5ABC1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

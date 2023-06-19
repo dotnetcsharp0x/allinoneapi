@@ -13,7 +13,13 @@
     <PackageReference Include="Auth0.Core" Version="7.19.0" />
     <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
     <PackageReference Include="DotNetRateLimiter" Version="1.0.5" />
-    <PackageReference Include="GraphQL" Version="7.4.0" />
+    <PackageReference Include="GraphQL" Version="7.4.1" />
+    <PackageReference Include="GraphQL.Client" Version="6.0.0" />
+    <PackageReference Include="GraphQL.NewtonsoftJson" Version="7.4.1" />
+    <PackageReference Include="GraphQL.Server.Transports.AspNetCore" Version="7.4.0" />
+    <PackageReference Include="GraphQL.SystemTextJson" Version="7.4.1" />
+    <PackageReference Include="HotChocolate.AspNetCore" Version="13.0.5" />
+    <PackageReference Include="HotChocolate.Data.EntityFramework" Version="13.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Extensions" Version="2.2.0" />
@@ -36,6 +42,12 @@
 
   <ItemGroup>
     <Folder Include="Models\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="CSharpAPI">
+      <HintPath>D:\TWS API\samples\CSharp\IBSampleApp\bin\Debug\CSharpAPI.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

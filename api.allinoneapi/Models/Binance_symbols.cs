@@ -12,5 +12,9 @@
         public int quoteAssetPrecision { get; set; }
         public int baseCommissionPrecision { get; set; }
         public int quoteCommissionPrecision { get; set; }
+        public double? circulating_supply { get; set; }
+        public double? total_supply { get; set; }
+        public double? max_supply { get; set; }
+        public double? domination { get; set; }
     }
 }
