@@ -85,6 +85,7 @@ namespace allinoneapi.Controllers
                 {
                     binance_resp.Add(a);
                 }
+                Content.Dispose();
                 return binance_resp;
             }
             else
@@ -123,7 +124,7 @@ namespace allinoneapi.Controllers
                 int to_minus = -182;
                 to_minus -= minutes;
                 var resp = crypto.Binance_GetKandles(symbol, to_minus, lines, interval);
-                if (resp != null)
+                if (resp is not null)
                 {
                     return resp;
                 }

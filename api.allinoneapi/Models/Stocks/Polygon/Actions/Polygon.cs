@@ -24,6 +24,7 @@ namespace api.allinoneapi.Models.Stocks.Polygon.Actions
             var Content = new StringContent(r.ToString(), Encoding.UTF8, "application/json");
             JavaScriptSerializer? js = new JavaScriptSerializer();
             var ticker_resp = js.Deserialize<Root>(r);
+            Content.Dispose();
             return ticker_resp;
         }
     }

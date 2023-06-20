@@ -51,6 +51,8 @@ namespace allinoneapi.Data
             {
                 resp = gecko_symbols.Data.bitcoin.blocks.First().count;
             }
+            Content.Dispose();
+            client.Dispose();
             return resp;
         }
 
@@ -74,6 +76,8 @@ namespace allinoneapi.Data
             {
                 resp = gecko_symbols.Data.bitcoin.addressStats.First().address.balance_usd;
             }
+            Content.Dispose();
+            client.Dispose();
             return resp;
         }
     }

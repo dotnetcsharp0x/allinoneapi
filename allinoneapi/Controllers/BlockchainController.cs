@@ -78,7 +78,8 @@ namespace allinoneapi.Controllers
                 }
                 resp.Add(item);
             }
-            
+            Content.Dispose();
+            client.Dispose();
             return resp;
         }
         #endregion
@@ -115,6 +116,8 @@ namespace allinoneapi.Controllers
                 ina.Value = a.difficulty;
                 difficulty.Add(ina);
             }
+            client.Dispose();
+            Content.Dispose();
             return difficulty;
         }
         #endregion
@@ -150,6 +153,8 @@ namespace allinoneapi.Controllers
                 adr = gecko_symbols.Data.bitcoin.addressStats.First().address;
             }
             adr.address = address;
+            client.Dispose();
+            Content.Dispose();
             return adr;
         }
         #endregion

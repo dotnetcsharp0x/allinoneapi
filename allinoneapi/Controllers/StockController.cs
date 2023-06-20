@@ -85,6 +85,8 @@ namespace allinoneapi.Controllers
                             ,update_date=DateTime.Now
                             ,tickers = (from h in i.tickers select new TickerToNews() { Url = i.article_url, ticker = h }).ToList()
                         }).ToHashSet();
+            client.Dispose();
+            Content.Dispose();
             return resp;
         }
         #endregion
@@ -133,6 +135,8 @@ namespace allinoneapi.Controllers
                 rsp.takerBuyQuoteVolume = 0;
                 resp_tickers.Add(rsp);
             }
+            client.Dispose();
+            Content.Dispose();
             return resp_tickers;
         }
         #endregion
@@ -150,6 +154,8 @@ namespace allinoneapi.Controllers
             var Content = new StringContent(r.ToString(), Encoding.UTF8, "application/json");
             JavaScriptSerializer? js = new JavaScriptSerializer();
             var poly_tickers = js.Deserialize<PolygonTickers>(r);
+            Content.Dispose();
+            client.Dispose();
             return poly_tickers;
 
         }
@@ -170,6 +176,8 @@ namespace allinoneapi.Controllers
             var Content = new StringContent(r.ToString(), Encoding.UTF8, "application/json");
             JavaScriptSerializer? js = new JavaScriptSerializer();
             var poly_tickers = js.Deserialize<api.allinoneapi.Models.Stocks.Polygon.TickerDescription>(r);
+            client.Dispose();
+            Content.Dispose();
             return poly_tickers.results;
 
         }
