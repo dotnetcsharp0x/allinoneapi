@@ -2,15 +2,20 @@
 using api.allinoneapi.Models;
 using api.allinoneapi.Models.Stocks.Polygon;
 using api.allinoneapi.Models.Stocks.Polygon.Actions;
+using api.allinoneapi.Models.Stocks.Polygon.Dividends;
 using api.allinoneapi.Models.Stocks.Polygon.News;
+using BenchmarkDotNet.Disassemblers;
 using Google.Protobuf.Collections;
+using Google.Protobuf.WellKnownTypes;
 using IBApi;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
 using Nancy.Json;
 using RestSharp;
+using RestSharp.Authenticators;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Xml;
 using Tinkoff.InvestApi;
 using Tinkoff.InvestApi.V1;
@@ -27,8 +32,9 @@ namespace allinoneapi.Controllers
         EClientSocket _clientSocket;
         public readonly EReaderSignal _Signal;
         Stocks_Data _stock;
-        private static string api = "&apiKey=";
-        private static string api2 = "?apiKey=";
+        private static string api = "";
+        private static string api2 = "";
+        private static string apiBarer = "";
         public StockController(ILogger<Stocks_Data> logger, InvestApiClient investApi, IHostApplicationLifetime lifetime)
         {
             XmlDocument xApi = new XmlDocument();
@@ -38,8 +44,9 @@ namespace allinoneapi.Controllers
             {
                 foreach (XmlElement xnode in xRootApi)
                 {
-                    api = api + xnode.ChildNodes[1].InnerText;
-                    api2 = api2 + xnode.ChildNodes[1].InnerText;
+                    api = "&apiKey=" + xnode.ChildNodes[1].InnerText;
+                    api2 = "?apiKey=" + xnode.ChildNodes[1].InnerText;
+                    apiBarer = xnode.ChildNodes[3].InnerText;
                 }
             }
             _logger = logger;
@@ -47,6 +54,27 @@ namespace allinoneapi.Controllers
             _investApi = investApi;
             _stock = new Stocks_Data(_logger, _investApi, _lifetime);
         }
+
+        #region GetDividends
+        [HttpGet]
+        [Route("GetDividends")]
+        public Dividends GetDividends(string? url_get = "https://api.polygon.io/v3/reference/dividends?limit=1000")
+        {
+            var url = url_get + api;
+            var client = new RestClient(url);
+            var request = new RestRequest(url, RestSharp.Method.Get);
+            request.AddHeader("Content-Type", "application/json");
+            var r = client.ExecuteAsync(request).Result.Content;
+
+            var Content = new StringContent(r.ToString(), Encoding.UTF8, "application/json");
+            JavaScriptSerializer? js = new JavaScriptSerializer();
+            var poly_tickers = js.Deserialize<Dividends>(r);
+            Content.Dispose();
+            client.Dispose();
+            return poly_tickers;
+
+        }
+        #endregion
 
         #region GetNews
         [HttpGet]
@@ -61,7 +89,7 @@ namespace allinoneapi.Controllers
             }
             url = url + api;
             var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
+            var request = new RestRequest(url, RestSharp.Method.Get);
             request.AddHeader("Content-Type", "application/json");
             var r = client.ExecuteAsync(request).Result.Content;
 
@@ -99,7 +127,7 @@ namespace allinoneapi.Controllers
             string url = "https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers?apiKey=1IDknqV7XjsFhZRNtwdNcJOtPp9IH0Ji";
             var resp_tickers = new List<Polygon_StockKandles>();
             var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
+            var request = new RestRequest(url, RestSharp.Method.Get);
             request.AddHeader("Content-Type", "application/json");
             var r = client.ExecuteAsync(request).Result.Content;
 
@@ -140,6 +168,7 @@ namespace allinoneapi.Controllers
             return resp_tickers;
         }
         #endregion
+
         #region GetInstruments
         [HttpGet]
         [Route("GetInstruments")]
@@ -147,7 +176,7 @@ namespace allinoneapi.Controllers
         {
             var url = url_get + api;
             var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
+            var request = new RestRequest(url, RestSharp.Method.Get);
             request.AddHeader("Content-Type", "application/json");
             var r = client.ExecuteAsync(request).Result.Content;
 
@@ -169,7 +198,7 @@ namespace allinoneapi.Controllers
             string? url_get = "https://api.polygon.io/v3/reference/tickers/";
             var url = url_get + ticker + api2;
             var client = new RestClient(url);
-            var request = new RestRequest(url, Method.Get);
+            var request = new RestRequest(url, RestSharp.Method.Get);
             request.AddHeader("Content-Type", "application/json");
             var r = client.ExecuteAsync(request).Result.Content;
 
@@ -208,7 +237,38 @@ namespace allinoneapi.Controllers
         [Route("GetInstruments/Bonds")]
         public async Task<RepeatedField<Bond>> GetBonds(CancellationToken stoppingToken)
         {
+            var a = _stock.GetBonds(stoppingToken,_investApi);
             return await _stock.GetBonds(stoppingToken, _investApi);
+        }
+        #endregion
+
+        #region GetDividends
+        [HttpGet]
+        [Route("GetInstruments/GetDividends")]
+        public async Task<api.allinoneapi.Models.Tinkoff.Dividends.Dividends?> GetDividends(CancellationToken stoppingToken,string figi,DateTime dateFrom,DateTime dateTo)
+        {
+            string url_get = "https://invest-public-api.tinkoff.ru/rest/tinkoff.public.invest.api.contract.v1.InstrumentsService/GetDividends";
+            var url = url_get;
+            var client = new RestClient(url);
+            var request = new RestRequest(url, RestSharp.Method.Post);
+            request.AddHeader("Content-Type", "application/json");
+            request.AddJsonBody("{\r\n  \"figi\": \"" +
+                figi +
+                "\",\r\n  \"from\": \"" +
+                dateFrom.ToString("yyyy-MM-ddTHH:mm:ssZ") +
+                "\",\r\n  \"to\": \"" +
+                dateTo.ToString("yyyy-MM-ddTHH:mm:ssZ") +
+                "\"\r\n}");
+            request.AddHeader("Authorization", "Bearer " + apiBarer);
+            var r = client.ExecuteAsync(request).Result.Content;
+            var Content = new StringContent(r.ToString(), Encoding.UTF8, "application/json");
+
+            JavaScriptSerializer? js = new JavaScriptSerializer();
+            var poly_tickers = js.Deserialize<api.allinoneapi.Models.Tinkoff.Dividends.Dividends>(r);
+            Console.WriteLine(poly_tickers);
+            Content.Dispose();
+            client.Dispose();
+            return poly_tickers;
         }
         #endregion
 

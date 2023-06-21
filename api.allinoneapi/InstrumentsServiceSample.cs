@@ -92,6 +92,23 @@ public class InstrumentsServiceSample
             dividends, accruedInterests, futuresMargin, tradingSchedulesResponse).Format();
     }
 
+    public SharesResponse GetDividends()
+    {
+        var shares = _service.Shares();
+        var dividends = new List<GetDividendsResponse>(3);
+        foreach (var share in shares.Instruments.Take(dividends.Capacity))
+        {
+            var dividendsResponse = _service.GetDividends(new GetDividendsRequest
+            {
+                Figi = share.Figi,
+                From = share.IpoDate,
+                To = Timestamp.FromDateTime(DateTime.UtcNow)
+            });
+            dividends.Add(dividendsResponse);
+        }
+        return shares;
+    }
+
     public string GetInstrumentsDescription()
     {
         var shares = _service.Shares();

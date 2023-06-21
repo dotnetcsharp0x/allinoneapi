@@ -13,7 +13,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
     <PackageReference Include="Nancy" Version="2.0.0" />
     <PackageReference Include="RestSharp" Version="108.0.3" />
-    <PackageReference Include="Tinkoff.InvestApi" Version="0.5.0" />
+    <PackageReference Include="Tinkoff.InvestApi" Version="0.6.1" />
   </ItemGroup>
 
 </Project>
